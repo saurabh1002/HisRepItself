@@ -15,9 +15,7 @@ class AttModel(Module):
 
         self.kernel_size = kernel_size
         self.d_model = d_model
-        # self.seq_in = seq_in
         self.dct_n = dct_n
-        # ks = int((kernel_size + 1) / 2)
         assert kernel_size == 10
 
         self.convQ = nn.Sequential(nn.Conv1d(in_channels=in_features, out_channels=d_model, kernel_size=6,
@@ -41,16 +39,14 @@ class AttModel(Module):
     def forward(self, src, output_n=25, input_n=50, itera=1):
         """
 
-        :param src: [batch_size,seq_len,feat_dim]
-        :param output_n:
-        :param input_n:
-        :param frame_n:
-        :param dct_n:
-        :param itera:
+        :param src: [batch_size, seq_len, feat_dim]
+        :param output_n: number of output frames per iteration
+        :param input_n: number of input frames
+        :param itera: number of iterations to predict future frames (final_output_n // output_n)
         :return:
         """
         dct_n = self.dct_n
-        src = src[:, :input_n]  # [bs,in_n,dim]
+        src = src[:, :input_n]  # [bs, in_n, feature_dim]
         src_tmp = src.clone()
         bs = src.shape[0]
         src_key_tmp = src_tmp.transpose(1, 2)[:, :, :(input_n - output_n)].clone()
@@ -68,7 +64,7 @@ class AttModel(Module):
             [bs * vn, vl, -1])
         src_value_tmp = torch.matmul(dct_m[:dct_n].unsqueeze(dim=0), src_value_tmp).reshape(
             [bs, vn, dct_n, -1]).transpose(2, 3).reshape(
-            [bs, vn, -1])  # [32,40,66*11]
+            [bs, vn, -1])
 
         idx = list(range(-self.kernel_size, 0, 1)) + [-1] * output_n
         outputs = []
@@ -157,8 +153,6 @@ class AttModelPerParts(Module):
         :param src: [batch_size,seq_len,feat_dim]
         :param output_n:
         :param input_n:
-        :param frame_n:
-        :param dct_n:
         :param itera:
         :return:
         """
