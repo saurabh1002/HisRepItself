@@ -20,7 +20,7 @@ def main(opt):
     start_epoch = 1
     # opt.is_eval = True
     print('>>> create models')
-    in_features = opt.in_features  # 54
+    in_features = opt.in_features  # 51
     d_model = opt.d_model
     kernel_size = opt.kernel_size
     net_pred = AttModel.AttModel(in_features=in_features, kernel_size=kernel_size, d_model=d_model,
