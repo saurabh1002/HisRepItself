@@ -8,9 +8,6 @@ from torch.utils.data import DataLoader
 import torch
 import torch.nn as nn
 import numpy as np
-import pandas as pd
-import os
-
 import time
 import torch.optim as optim
 
@@ -18,11 +15,13 @@ import torch.optim as optim
 def main(opt):
     lr_now = opt.lr_now
     start_epoch = 1
-    # opt.is_eval = True
+
     print('>>> create models')
+
     in_features = opt.in_features  # 51
-    d_model = opt.d_model
-    kernel_size = opt.kernel_size
+    d_model = opt.d_model # 256
+    kernel_size = opt.kernel_size # 10
+    
     net_pred = AttModel.AttModel(in_features=in_features, kernel_size=kernel_size, d_model=d_model,
                                  num_stage=opt.num_stage, dct_n=opt.dct_n)
     net_pred.cuda()
@@ -31,7 +30,7 @@ def main(opt):
     print(">>> total params: {:.2f}M".format(sum(p.numel() for p in net_pred.parameters()) / 1000000.0))
 
     if opt.is_load or opt.is_eval:
-        model_path_len = './{}/ckpt_best.pth.tar'.format(opt.ckpt)
+        model_path_len = './{}/main_bam_3d_in50_out25_ks10_dctn35/ckpt_best.pth.tar'.format(opt.ckpt)
         print(">>> loading ckpt len from '{}'".format(model_path_len))
         ckpt = torch.load(model_path_len)
         start_epoch = ckpt['epoch'] + 1
@@ -109,8 +108,7 @@ def run_model(net_pred, optimizer=None, is_train=0, data_loader=None, epo=1, opt
         net_pred.eval()
 
     l_p3d = 0
-    # l_beta = 0
-    # j17to14 = [6, 5, 4, 1, 2, 3, 16, 15, 14, 11, 12, 13, 8, 10]
+
     if is_train <= 1:
         m_p3d = 0
     else:
@@ -126,12 +124,12 @@ def run_model(net_pred, optimizer=None, is_train=0, data_loader=None, epo=1, opt
 
     st = time.time()
     for i, (p3d) in enumerate(data_loader):
-        batch_size, seq_n, all_dim = p3d.shape
+        batch_size, seq_n, _ = p3d.shape
         if batch_size == 1 and is_train == 0:
             continue
         n += batch_size
         bt = time.time()
-        p3d = p3d.float().cuda() * 1000
+        p3d = p3d.float().cuda()
         p3d_sup = p3d.clone()[:, -out_n - seq_in:].reshape([batch_size, out_n + seq_in, 17, 3])
         p3d_src = p3d.clone()
 
@@ -143,7 +141,6 @@ def run_model(net_pred, optimizer=None, is_train=0, data_loader=None, epo=1, opt
 
         # 2d joint loss:
         if is_train == 0:
-            # loss_p3d = torch.mean(torch.sum(torch.abs(p3d_out_all - p3d_sup), dim=4))
             loss_p3d = torch.mean(torch.norm(p3d_out_all - p3d_sup, dim=3))
 
             loss_all = loss_p3d

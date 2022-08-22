@@ -69,9 +69,9 @@ class AttModel(Module):
         idx = list(range(-self.kernel_size, 0, 1)) + [-1] * output_n
         outputs = []
 
-        key_tmp = self.convK(src_key_tmp / 1000.0)
+        key_tmp = self.convK(src_key_tmp)
         for i in range(itera):
-            query_tmp = self.convQ(src_query_tmp / 1000.0)
+            query_tmp = self.convQ(src_query_tmp)
             score_tmp = torch.matmul(query_tmp.transpose(1, 2), key_tmp) + 1e-15
             att_tmp = score_tmp / (torch.sum(score_tmp, dim=2, keepdim=True))
             dct_att_tmp = torch.matmul(att_tmp, src_value_tmp)[:, 0].reshape(
@@ -95,7 +95,7 @@ class AttModel(Module):
                           np.expand_dims(np.arange(vn, -self.kernel_size - output_n + 1), axis=1)
 
                 src_key_tmp = src_tmp[:, idx_dct[0, :-1]].transpose(1, 2)
-                key_new = self.convK(src_key_tmp / 1000.0)
+                key_new = self.convK(src_key_tmp)
                 key_tmp = torch.cat([key_tmp, key_new], dim=2)
 
                 src_dct_tmp = src_tmp[:, idx_dct].clone().reshape(
