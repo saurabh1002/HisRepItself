@@ -155,6 +155,8 @@ def run_model(net_pred, optimizer=None, is_train=0, data_loader=None, epo=1, opt
             mpjpe_p3d = torch.mean(torch.norm(p3d[:, in_n:in_n + out_n].reshape([batch_size, out_n, 17, 3]) - p3d_out, dim=3))
             m_p3d += mpjpe_p3d.cpu().data.numpy() * batch_size
         else:
+            np.save(f"output/batch{i}_gt_poses.npy", p3d_sup.cpu().data.numpy())
+            np.save(f"output/batch{i}_pred_poses.npy", p3d_out_all.cpu().data.numpy())
             mpjpe_p3d = torch.sum(torch.mean(torch.norm(p3d[:, in_n:].reshape([batch_size, out_n, 17, 3]) - p3d_out, dim=3), dim=2), dim=0)
             m_p3d += mpjpe_p3d.cpu().data.numpy()
 
