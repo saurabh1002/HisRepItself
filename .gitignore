@@ -130,3 +130,6 @@ dmypy.json
 
 .idea/
 datasets/
+output/
+.cache/
+.replik_paths.json

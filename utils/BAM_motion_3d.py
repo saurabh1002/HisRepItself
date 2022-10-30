@@ -17,26 +17,22 @@ class BAM_Motion3D(Dataset):
 
         self.split = split
 
-        self.bam_file_names = self.get_bam_names()
+        self.bam_file_names = self.get_bam_names(opt)
 
         self.all_seqs = self.load_all()
 
-    def get_bam_names(self):
+    def get_bam_names(self, config):
         seq_names = []
         if self.split == 0:
-            seq_names += np.loadtxt(
-                os.path.join(self.path_to_data, "bam_train.txt"), dtype=str, ndmin=1
-                ).tolist()
+            seq_names = config.train_data
             self.is_test = False
         else:
-            seq_names += np.loadtxt(
-                os.path.join(self.path_to_data, "bam_test.txt"), dtype=str, ndmin=1
-                ).tolist()
+            seq_names = config.eval_data
             self.is_test = True
 
         file_list = []
         for dataset in seq_names:
-            files = glob.glob(self.path_to_data + '/' + dataset + '/poses_pid*.npy')
+            files = glob.glob(self.path_to_data + dataset + '/poses_pid*.npy')
             file_list.extend(files)
 
         return file_list
