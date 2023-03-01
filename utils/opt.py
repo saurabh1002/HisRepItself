@@ -23,17 +23,16 @@ class Options:
         # ===============================================================
         #                     General options
         # ===============================================================
-        self.parser.add_argument('--data_dir', type=str, help='path to dataset', default='/home/user/BAMp')
         self.parser.add_argument('--exp', type=str, default='test', help='ID of experiment')
         self.parser.add_argument('--is_eval', dest='is_eval', action='store_true', help='whether it is to evaluate the model')
-        self.parser.add_argument('--ckpt', type=str, default='checkpoint-BCD/', help='path to save checkpoint')
+        self.parser.add_argument('--ckpt', type=str, default='checkpoint-haggling/', help='path to save checkpoint')
         self.parser.add_argument('--skip_rate', type=int, default=1, help='skip rate of samples')
         self.parser.add_argument('--skip_rate_test', type=int, default=5, help='skip rate of samples for test')
 
         # ===============================================================
         #                     Model options
         # ===============================================================
-        self.parser.add_argument('--in_features', type=int, default=51, help='number of features = num_joints x dim_of_each_joint')
+        self.parser.add_argument('--in_features', type=int, default=57, help='number of features = num_joints x dim_of_each_joint')
         self.parser.add_argument('--num_stage', type=int, default=12, help='number of residual blocks in GCN')
         self.parser.add_argument('--d_model', type=int, default=256, help='dimensions of the query and key vector, as well as hidden features')
         self.parser.add_argument('--kernel_size', type=int, default=10, help='numbe of frames in Keys of the attention module (M)')
@@ -60,9 +59,6 @@ class Options:
     def parse(self):
         self._initial()
         self.opt = self.parser.parse_args()
-
-        self.opt.train_data = ['/0_1_0/B', '/0_1_0/C', '/0_1_0/D']
-        self.opt.eval_data = ['/0_1_0/A']
 
         if not self.opt.is_eval:
             script_name = os.path.basename(sys.argv[0])[:-3]
